@@ -1,0 +1,231 @@
+/**
+ * Email Block Styles
+ * Block-specific styles matching MJML output patterns
+ */
+
+/* ==========================================================================
+   Text Block
+   ========================================================================== */
+
+.email-text {
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+.email-text p {
+    margin: 0;
+}
+
+.email-text a {
+    color: #3b82f6;
+    text-decoration: underline;
+}
+
+.email-text h1 {
+    font-size: 2em;
+    font-weight: bold;
+    margin: 0.67em 0;
+}
+
+.email-text h2 {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin: 0.5em 0;
+}
+
+.email-text h3 {
+    font-size: 1.17em;
+    font-weight: bold;
+    margin: 0.5em 0;
+}
+
+.email-text h4 {
+    font-size: 1em;
+    font-weight: bold;
+    margin: 0.5em 0;
+}
+
+.email-text h5 {
+    font-size: 0.83em;
+    font-weight: bold;
+    margin: 0.5em 0;
+}
+
+.email-text h6 {
+    font-size: 0.67em;
+    font-weight: bold;
+    margin: 0.5em 0;
+}
+
+.email-text ul {
+    list-style-type: disc;
+    padding-left: 1.5em;
+    margin: 0.5em 0;
+}
+
+.email-text ol {
+    list-style-type: decimal;
+    padding-left: 1.5em;
+    margin: 0.5em 0;
+}
+
+.email-text li {
+    margin: 0.25em 0;
+}
+
+.email-text strong,
+.email-text b {
+    font-weight: bold;
+}
+
+.email-text em,
+.email-text i {
+    font-style: italic;
+}
+
+.email-text u {
+    text-decoration: underline;
+}
+
+.email-text s {
+    text-decoration: line-through;
+}
+
+.email-text blockquote {
+    border-left: 3px solid #d1d5db;
+    padding-left: 1em;
+    margin: 0.5em 0;
+    color: #6b7280;
+}
+
+.email-text code {
+    background-color: #f3f4f6;
+    padding: 0.125em 0.25em;
+    border-radius: 0.25em;
+    font-family: monospace;
+    font-size: 0.875em;
+}
+
+.email-text pre {
+    background-color: #1f2937;
+    color: #f9fafb;
+    padding: 0.75em 1em;
+    border-radius: 0.375em;
+    overflow-x: auto;
+    margin: 0.5em 0;
+}
+
+.email-text pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+}
+
+.email-text hr {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin: 1em 0;
+}
+
+/* ==========================================================================
+   Heading Block
+   ========================================================================== */
+
+.email-heading {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    margin: 0;
+}
+
+/* ==========================================================================
+   Button Block
+   ========================================================================== */
+
+.email-button {
+    display: inline-block;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.email-button-wrapper {
+    line-height: 1;
+}
+
+.email-button-wrapper--left {
+    text-align: left;
+}
+
+.email-button-wrapper--center {
+    text-align: center;
+}
+
+.email-button-wrapper--right {
+    text-align: right;
+}
+
+/* ==========================================================================
+   Image Block
+   ========================================================================== */
+
+.email-image {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border: 0;
+}
+
+.email-image-wrapper {
+    font-size: 0;
+    line-height: 0;
+}
+
+.email-image-wrapper--left {
+    text-align: left;
+}
+
+.email-image-wrapper--center {
+    text-align: center;
+}
+
+.email-image-wrapper--right {
+    text-align: right;
+}
+
+/* ==========================================================================
+   Divider Block
+   ========================================================================== */
+
+.email-divider {
+    width: 100%;
+    height: 0;
+    border: 0;
+    border-top-style: solid;
+    border-top-width: 1px;
+    border-top-color: #e5e7eb;
+}
+
+.email-divider--solid {
+    border-top-style: solid;
+}
+
+.email-divider--dashed {
+    border-top-style: dashed;
+}
+
+.email-divider--dotted {
+    border-top-style: dotted;
+}
+
+/* ==========================================================================
+   Spacer Block
+   ========================================================================== */
+
+.email-spacer {
+    display: block;
+    width: 100%;
+    font-size: 0;
+    line-height: 0;
+    min-height: 10px;
+}

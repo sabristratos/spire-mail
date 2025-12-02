@@ -1,0 +1,8 @@
+/**
+ * Spire Mail Email Canvas Styles
+ * CSS that approximates email client rendering for the editor canvas
+ */
+
+@import './email-canvas-reset.css';
+@import './email-table-layout.css';
+@import './email-blocks.css';

@@ -1,0 +1,99 @@
+/**
+ * Email Canvas Reset
+ * Normalizes canvas rendering to approximate email client behavior
+ */
+
+.email-canvas {
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/**
+ * Universal reset within email canvas
+ * Ensures all elements start from a clean slate
+ */
+.email-canvas *,
+.email-canvas *::before,
+.email-canvas *::after {
+    box-sizing: border-box;
+}
+
+/**
+ * Block element resets
+ * Explicitly reset logical properties to handle modern browser defaults
+ */
+.email-canvas p,
+.email-canvas h1,
+.email-canvas h2,
+.email-canvas h3,
+.email-canvas h4,
+.email-canvas h5,
+.email-canvas h6 {
+    margin: 0;
+    padding: 0;
+    margin-block-start: 0;
+    margin-block-end: 0;
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+}
+
+/**
+ * List and quote resets
+ */
+.email-canvas ul,
+.email-canvas ol,
+.email-canvas dl {
+    margin: 0;
+    padding: 0;
+    margin-block-start: 0;
+    margin-block-end: 0;
+    padding-inline-start: 0;
+}
+
+.email-canvas li,
+.email-canvas dd {
+    margin: 0;
+    padding: 0;
+}
+
+.email-canvas blockquote,
+.email-canvas figure,
+.email-canvas figcaption {
+    margin: 0;
+    padding: 0;
+    margin-block-start: 0;
+    margin-block-end: 0;
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+}
+
+.email-canvas pre {
+    margin: 0;
+    margin-block-start: 0;
+    margin-block-end: 0;
+}
+
+.email-canvas a {
+    color: #3b82f6;
+    text-decoration: underline;
+}
+
+.email-canvas img {
+    border: 0;
+    outline: none;
+    text-decoration: none;
+    -ms-interpolation-mode: bicubic;
+}
+
+.email-canvas table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+.email-canvas td,
+.email-canvas th {
+    padding: 0;
+}

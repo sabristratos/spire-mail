@@ -1,0 +1,51 @@
+/**
+ * Email Table Layout Simulation
+ * Mimics MJML's table-based column system for visual alignment
+ */
+
+.email-row {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.email-column {
+    display: table-cell;
+    vertical-align: top;
+}
+
+.email-column--top {
+    vertical-align: top;
+}
+
+.email-column--middle {
+    vertical-align: middle;
+}
+
+.email-column--bottom {
+    vertical-align: bottom;
+}
+
+/**
+ * Mobile stacking simulation
+ * MJML stacks columns on mobile by default (480px breakpoint)
+ */
+@media (max-width: 480px) {
+    .email-row--stacked {
+        display: block;
+    }
+
+    .email-row--stacked > .email-column {
+        display: block;
+        width: 100% !important;
+    }
+}
+
+/**
+ * No-stack variant - keeps columns side by side on all viewports
+ */
+.email-row--no-stack > .email-column {
+    display: table-cell !important;
+}

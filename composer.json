@@ -1,0 +1,59 @@
+{
+    "name": "spire/mail",
+    "description": "Visual drag-and-drop email template editor for Laravel",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "laravel",
+        "email",
+        "mail",
+        "template",
+        "editor",
+        "drag-and-drop",
+        "mjml",
+        "email-builder",
+        "visual-editor"
+    ],
+    "authors": [
+        {
+            "name": "Sabri Stratos",
+            "email": "sabri@stratos.dev"
+        }
+    ],
+    "homepage": "https://github.com/sabristratos/spire-mail",
+    "support": {
+        "issues": "https://github.com/sabristratos/spire-mail/issues",
+        "source": "https://github.com/sabristratos/spire-mail"
+    },
+    "autoload": {
+        "psr-4": {
+            "SpireMail\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SpireMail\\Tests\\": "tests/"
+        }
+    },
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^11.0|^12.0",
+        "spatie/mjml-php": "^1.2"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.0|^10.0",
+        "pestphp/pest": "^3.0"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "SpireMail\\SpireMailServiceProvider"
+            ],
+            "aliases": {
+                "SpireMail": "SpireMail\\Facades\\SpireMail"
+            }
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

@@ -1,0 +1,24 @@
+<?php
+
+return [
+    'template_created' => 'Template created successfully.',
+    'template_create_failed' => 'Failed to create template. Please try again.',
+    'template_saved' => 'Template saved successfully.',
+    'template_save_failed' => 'Failed to save template. Please try again.',
+    'template_deleted' => 'Template deleted successfully.',
+    'template_delete_failed' => 'Failed to delete template. Please try again.',
+    'template_duplicated' => 'Template duplicated successfully.',
+    'template_duplicate_failed' => 'Failed to duplicate template. Please try again.',
+    'templates_bulk_deleted' => ':count template(s) deleted successfully.',
+    'templates_bulk_delete_failed' => 'Failed to delete templates. Please try again.',
+    'template_status_updated' => 'Template status updated.',
+    'template_status_failed' => 'Failed to update template status. Please try again.',
+    'preview_failed' => 'Failed to render preview. Please try again.',
+    'test_email_sent' => 'Test email sent to :email.',
+    'test_email_failed' => 'Failed to send test email. Please try again.',
+    'upload_failed' => 'Failed to upload file. Please try again.',
+    'asset_deleted' => 'Asset deleted successfully.',
+    'asset_not_found' => 'Asset not found.',
+    'delete_failed' => 'Failed to delete asset. Please try again.',
+    'unauthorized' => 'You are not authorized to manage mail templates.',
+];

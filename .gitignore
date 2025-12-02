@@ -1,0 +1,16 @@
+/vendor/
+/node_modules/
+/dist/
+.env
+.env.*
+.phpunit.result.cache
+.php-cs-fixer.cache
+phpunit.xml
+phpstan.neon
+composer.lock
+package-lock.json
+*.log
+.DS_Store
+Thumbs.db
+plan.md
+resources/js.FullName

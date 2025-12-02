@@ -1,0 +1,62 @@
+{
+    "name": "@sabrenski/spire-mail",
+    "version": "0.1.0",
+    "description": "A visual email template builder for Laravel with drag-and-drop blocks, MJML rendering, and Vue 3 editor",
+    "type": "module",
+    "author": "Spire Mail Contributors",
+    "license": "MIT",
+    "homepage": "https://github.com/sabrenski/spire-mail#readme",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/sabrenski/spire-mail.git"
+    },
+    "bugs": {
+        "url": "https://github.com/sabrenski/spire-mail/issues"
+    },
+    "keywords": [
+        "vue",
+        "vue3",
+        "email",
+        "email-builder",
+        "email-editor",
+        "email-template",
+        "laravel",
+        "mjml",
+        "drag-drop",
+        "wysiwyg"
+    ],
+    "main": "./dist/spire-mail.cjs",
+    "module": "./dist/spire-mail.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/spire-mail.js",
+            "require": "./dist/spire-mail.cjs"
+        },
+        "./style.css": "./dist/spire-mail.css"
+    },
+    "files": [
+        "dist"
+    ],
+    "sideEffects": [
+        "*.css"
+    ],
+    "scripts": {
+        "build": "vite build"
+    },
+    "peerDependencies": {
+        "vue": "^3.0.0",
+        "@sabrenski/spire-ui-vue": "^0.1.0"
+    },
+    "dependencies": {
+        "dompurify": "^3.2.0"
+    },
+    "devDependencies": {
+        "@types/dompurify": "^3.2.0",
+        "@types/node": "^24.10.1",
+        "typescript": "^5.7.0",
+        "vite-plugin-dts": "^4.5.4",
+        "vue-tsc": "^2.2.0"
+    }
+}
