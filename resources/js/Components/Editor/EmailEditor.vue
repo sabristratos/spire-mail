@@ -6,7 +6,7 @@ import { ArrowTurnBackwardIcon, ArrowTurnForwardIcon, ViewIcon, FloppyDiskIcon, 
 import EditorSidebar from './EditorSidebar.vue'
 import EditorCanvas from './EditorCanvas.vue'
 import EditorProperties from './EditorProperties.vue'
-import type { EditorProps, EditorContext } from '../../types/editor'
+import type { EditorProps, EditorContext, TemplateTag } from '../../types/editor'
 import type { BlockType } from '../../types/blocks'
 import {
     initializeStore,
@@ -30,10 +30,13 @@ import {
 const props = defineProps<EditorProps>()
 
 const emit = defineEmits<{
-    save: [content: { version: string; blocks: unknown[] }, settings: unknown]
+    save: [content: { version: string; blocks: unknown[] }, settings: unknown, tags: TemplateTag[]]
     preview: [content: { version: string; blocks: unknown[] }, settings: unknown]
     'metadata-click': []
+    'update:templateTags': [tags: TemplateTag[]]
 }>()
+
+const templateTags = ref<TemplateTag[]>(props.template?.tags ?? [])
 
 onMounted(() => {
     const blocks = props.template?.content?.blocks ?? []
@@ -113,7 +116,12 @@ provide('emailEditor', editorContext)
 
 function handleSave(): void {
     const content = exportDocument()
-    emit('save', content, editorState.value.settings)
+    emit('save', content, editorState.value.settings, templateTags.value)
+}
+
+function handleUpdateTemplateTags(tags: TemplateTag[]): void {
+    templateTags.value = tags
+    emit('update:templateTags', tags)
 }
 
 function handlePreview(): void {
@@ -242,7 +250,13 @@ function isInputFocused(): boolean {
             </div>
         </header>
 
-        <EditorSidebar class="row-start-2 border-r border-border" :available-blocks="availableBlocks" />
+        <EditorSidebar
+            class="row-start-2 border-r border-border"
+            :available-blocks="availableBlocks"
+            :global-tags="globalTags ?? []"
+            :template-tags="templateTags"
+            @update:template-tags="handleUpdateTemplateTags"
+        />
 
         <EditorCanvas class="row-start-2 overflow-auto bg-subtle" />
 

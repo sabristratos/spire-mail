@@ -14,11 +14,16 @@ use SpireMail\Http\Requests\StoreTemplateRequest;
 use SpireMail\Http\Requests\UpdateTemplateRequest;
 use SpireMail\Http\Resources\TemplateResource;
 use SpireMail\Models\MailTemplate;
+use SpireMail\Services\SpireMailManager;
 use SpireMail\Support\BlockRegistry;
 
 class TemplateController extends Controller
 {
     use LogsToChannel;
+
+    public function __construct(
+        protected SpireMailManager $manager
+    ) {}
 
     public function index(): Response
     {
@@ -62,10 +67,7 @@ class TemplateController extends Controller
 
             return back()
                 ->withInput()
-                ->with('toast', [
-                    'color' => 'danger',
-                    'description' => __('spire-mail::messages.template_create_failed'),
-                ]);
+                ->withErrors(['error' => __('spire-mail::messages.template_create_failed')]);
         }
     }
 
@@ -74,6 +76,7 @@ class TemplateController extends Controller
         return Inertia::render('spire-mail::Templates/Edit', [
             'template' => new TemplateResource($template),
             'availableBlocks' => $blockRegistry->getAvailableBlocks(),
+            'globalTags' => $this->manager->getGlobalTagsForEditor(),
         ]);
     }
 
@@ -101,10 +104,7 @@ class TemplateController extends Controller
 
             return back()
                 ->withInput()
-                ->with('toast', [
-                    'color' => 'danger',
-                    'description' => __('spire-mail::messages.template_save_failed'),
-                ]);
+                ->withErrors(['error' => __('spire-mail::messages.template_save_failed')]);
         }
     }
 

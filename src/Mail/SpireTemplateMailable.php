@@ -10,6 +10,7 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use SpireMail\Models\MailTemplate;
 use SpireMail\Services\SpireMailManager;
+use SpireMail\Tags\TagProcessor;
 
 class SpireTemplateMailable extends Mailable implements ShouldQueue
 {
@@ -23,6 +24,8 @@ class SpireTemplateMailable extends Mailable implements ShouldQueue
 
     /**
      * @param  array<string, mixed>  $data
+     *
+     * @throws \SpireMail\Exceptions\MissingRequiredTagsException
      */
     public function __construct(
         MailTemplate|string $template,
@@ -30,6 +33,8 @@ class SpireTemplateMailable extends Mailable implements ShouldQueue
     ) {
         $this->template = MailTemplate::findBySlugOrFail($template);
         $this->mergeData = $data;
+
+        app(TagProcessor::class)->validateRequiredTags($this->template, $this->mergeData);
     }
 
     public function envelope(): Envelope

@@ -6,12 +6,13 @@ use Spatie\Mjml\Mjml;
 use SpireMail\Contracts\TemplateRendererInterface;
 use SpireMail\Models\MailTemplate;
 use SpireMail\Support\BlockRegistry;
+use SpireMail\Tags\TagProcessor;
 
 class TemplateRenderer implements TemplateRendererInterface
 {
     public function __construct(
         protected BlockRegistry $blockRegistry,
-        protected MergeTagProcessor $mergeTagProcessor
+        protected TagProcessor $tagProcessor
     ) {}
 
     /**
@@ -22,7 +23,7 @@ class TemplateRenderer implements TemplateRendererInterface
         $mjml = $this->buildMjml($template, $data);
         $html = $this->compileMjml($mjml);
 
-        return $this->mergeTagProcessor->process($html, $data);
+        return $this->tagProcessor->process($html, $data);
     }
 
     /**
@@ -51,7 +52,7 @@ class TemplateRenderer implements TemplateRendererInterface
         $mjml = $this->buildMjmlFromContent($blocks, $settings, $data);
         $html = $this->compileMjml($mjml);
 
-        return $this->mergeTagProcessor->process($html, $data);
+        return $this->tagProcessor->process($html, $data);
     }
 
     /**

@@ -21,4 +21,16 @@ return [
     'asset_not_found' => 'Asset not found.',
     'delete_failed' => 'Failed to delete asset. Please try again.',
     'unauthorized' => 'You are not authorized to manage mail templates.',
+
+    'tags_updated' => 'Template tags updated successfully.',
+
+    'formatter_default' => 'Use a fallback value if the tag is empty.',
+    'formatter_date' => 'Format a date using PHP date format.',
+    'formatter_currency' => 'Format a number as currency.',
+    'formatter_uppercase' => 'Convert text to uppercase.',
+    'formatter_lowercase' => 'Convert text to lowercase.',
+    'formatter_capitalize' => 'Capitalize each word.',
+    'formatter_truncate' => 'Truncate text to a specified length.',
+    'formatter_count' => 'Count items in an array or string length.',
+    'formatter_number' => 'Format a number with decimal places.',
 ];

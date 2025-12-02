@@ -6,6 +6,7 @@ use Illuminate\Mail\Mailables\Content;
 use RuntimeException;
 use SpireMail\Models\MailTemplate;
 use SpireMail\Services\SpireMailManager;
+use SpireMail\Tags\TagProcessor;
 
 trait UsesSpireTemplate
 {
@@ -31,11 +32,17 @@ trait UsesSpireTemplate
         return $this;
     }
 
+    /**
+     * @throws RuntimeException
+     * @throws \SpireMail\Exceptions\MissingRequiredTagsException
+     */
     protected function getSpireContent(): Content
     {
         if (! $this->spireTemplate) {
             throw new RuntimeException('No Spire template set. Call useTemplate() first.');
         }
+
+        app(TagProcessor::class)->validateRequiredTags($this->spireTemplate, $this->spireData);
 
         $html = app(SpireMailManager::class)
             ->render($this->spireTemplate, $this->spireData);

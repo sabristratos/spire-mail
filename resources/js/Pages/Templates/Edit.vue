@@ -2,13 +2,14 @@
 import { ref, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { EmailEditor, PreviewModal } from '../../index'
-import { Modal, Button, Input, Textarea, FormField, ToastContainer } from '@sabrenski/spire-ui-vue'
-import type { TemplateData, BlockDefinition } from '../../types/editor'
+import { Modal, Button, Input, Textarea, FormField, ToastContainer, addToast } from '@sabrenski/spire-ui-vue'
+import type { TemplateData, BlockDefinition, GlobalTag, TemplateTag } from '../../types/editor'
 import type { EmailBlock, EmailSettings } from '../../types/blocks'
 
 interface Props {
     template: { data: TemplateData } | null
     availableBlocks: Record<string, BlockDefinition>
+    globalTags: GlobalTag[]
 }
 
 const props = defineProps<Props>()
@@ -21,6 +22,7 @@ const isLoading = ref(false)
 
 const editorContent = ref<{ version: string; blocks: EmailBlock[] } | null>(null)
 const editorSettings = ref<EmailSettings | null>(null)
+const editorTags = ref<TemplateTag[]>(template.value?.tags ?? [])
 
 const metadata = ref({
     name: template.value?.name ?? '',
@@ -29,19 +31,20 @@ const metadata = ref({
     preview_text: template.value?.preview_text ?? '',
 })
 
-function handleSave(content: { version: string; blocks: EmailBlock[] }, settings: EmailSettings): void {
+function handleSave(content: { version: string; blocks: EmailBlock[] }, settings: EmailSettings, tags: TemplateTag[]): void {
     editorContent.value = content
     editorSettings.value = settings
+    editorTags.value = tags
 
     if (!template.value) {
         showMetadataModal.value = true
         return
     }
 
-    saveTemplate(content, settings)
+    saveTemplate(content, settings, tags)
 }
 
-function saveTemplate(content: { version: string; blocks: EmailBlock[] }, settings: EmailSettings): void {
+function saveTemplate(content: { version: string; blocks: EmailBlock[] }, settings: EmailSettings, tags: TemplateTag[]): void {
     if (!template.value) return
 
     isLoading.value = true
@@ -50,9 +53,24 @@ function saveTemplate(content: { version: string; blocks: EmailBlock[] }, settin
         ...metadata.value,
         content,
         settings,
+        tags,
     }, {
         preserveScroll: true,
         preserveState: true,
+        onSuccess: () => {
+            addToast({
+                color: 'success',
+                description: 'Template saved successfully',
+            })
+        },
+        onError: (errors: Record<string, string[]>) => {
+            const messages = Object.values(errors).flat()
+            addToast({
+                color: 'danger',
+                title: 'Validation Error',
+                description: messages[0] || 'Failed to save template',
+            })
+        },
         onFinish: () => {
             isLoading.value = false
         },
@@ -68,11 +86,22 @@ function handleCreate(content: { version: string; blocks: EmailBlock[] }, settin
             ...metadata.value,
             content,
             settings,
+            tags: editorTags.value,
         },
         {
+            onSuccess: () => {
+                showMetadataModal.value = false
+            },
+            onError: (errors: Record<string, string[]>) => {
+                const messages = Object.values(errors).flat()
+                addToast({
+                    color: 'danger',
+                    title: 'Validation Error',
+                    description: messages[0] || 'Failed to create template',
+                })
+            },
             onFinish: () => {
                 isLoading.value = false
-                showMetadataModal.value = false
             },
         }
     )
@@ -101,6 +130,7 @@ function submitMetadata(): void {
         <EmailEditor
             :template="template"
             :available-blocks="availableBlocks"
+            :global-tags="globalTags"
             show-back-link
             back-link-href="/admin/mail"
             @save="handleSave"

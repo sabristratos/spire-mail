@@ -4,6 +4,7 @@ namespace SpireMail\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
+use SpireMail\Rules\ValidateTemplateTags;
 use SpireMail\Rules\ValidBlockStructure;
 
 class StoreTemplateRequest extends FormRequest
@@ -33,6 +34,14 @@ class StoreTemplateRequest extends FormRequest
             'content.version' => ['nullable', 'string'],
             'content.blocks' => ['nullable', 'array', app(ValidBlockStructure::class)],
             'settings' => ['nullable', 'array'],
+            'tags' => ['nullable', 'array', app(ValidateTemplateTags::class)],
+            'tags.*.key' => ['required_with:tags', 'string', 'max:100'],
+            'tags.*.label' => ['nullable', 'string', 'max:100'],
+            'tags.*.description' => ['nullable', 'string', 'max:500'],
+            'tags.*.type' => ['nullable', 'string', 'in:string,number,date,url,boolean'],
+            'tags.*.required' => ['nullable', 'boolean'],
+            'tags.*.default' => ['nullable'],
+            'tags.*.example' => ['nullable', 'string', 'max:255'],
             'preview_text' => ['nullable', 'string', 'max:255'],
             'is_active' => ['nullable', 'boolean'],
         ];

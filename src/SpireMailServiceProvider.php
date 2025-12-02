@@ -11,6 +11,11 @@ use SpireMail\Http\Middleware\AuthorizeMailManagement;
 use SpireMail\Rendering\TemplateRenderer;
 use SpireMail\Services\SpireMailManager;
 use SpireMail\Support\HtmlSanitizer;
+use SpireMail\Tags\Conditionals\ConditionalProcessor;
+use SpireMail\Tags\Formatters\FormatterRegistry;
+use SpireMail\Tags\TagParser;
+use SpireMail\Tags\TagProcessor;
+use SpireMail\Tags\TagRegistry;
 
 class SpireMailServiceProvider extends ServiceProvider
 {
@@ -19,6 +24,11 @@ class SpireMailServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/../config/spire-mail.php', 'spire-mail');
 
         $this->app->singleton(HtmlSanitizer::class);
+        $this->app->singleton(TagRegistry::class);
+        $this->app->singleton(TagParser::class);
+        $this->app->singleton(FormatterRegistry::class);
+        $this->app->singleton(ConditionalProcessor::class);
+        $this->app->singleton(TagProcessor::class);
         $this->app->singleton(SpireMailManager::class);
         $this->app->bind(TemplateRendererInterface::class, TemplateRenderer::class);
 

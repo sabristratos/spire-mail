@@ -51,6 +51,42 @@ export interface EditorContext {
 }
 
 /**
+ * Global tag available in all templates.
+ */
+export interface GlobalTag {
+    /** Tag key (e.g., 'app_name') */
+    key: string
+    /** Human-readable label */
+    label: string
+    /** Tag description */
+    description: string
+    /** Example value */
+    example: string | null
+    /** Always true for global tags */
+    global: boolean
+}
+
+/**
+ * Template-specific tag.
+ */
+export interface TemplateTag {
+    /** Tag key with dot notation (e.g., 'user.name') */
+    key: string
+    /** Human-readable label */
+    label: string
+    /** Tag description */
+    description: string
+    /** Data type */
+    type: string
+    /** Whether tag is required */
+    required: boolean
+    /** Default value if not provided */
+    default: unknown
+    /** Example value for preview */
+    example: string | null
+}
+
+/**
  * Email template data from the backend.
  */
 export interface TemplateData {
@@ -71,6 +107,8 @@ export interface TemplateData {
     }
     /** Global email settings */
     settings: EmailSettings | null
+    /** Template-specific tags */
+    tags: TemplateTag[]
     /** Preview text shown in email clients */
     preview_text: string | null
     /** Whether the template is active */
@@ -83,6 +121,8 @@ export interface TemplateData {
     updated_at: string
     /** Number of blocks in the template */
     block_count: number
+    /** Number of template tags */
+    tags_count: number
 }
 
 /**
@@ -93,6 +133,8 @@ export interface EditorProps {
     template: TemplateData | null
     /** Available block types from the registry */
     availableBlocks: Record<string, BlockDefinition>
+    /** Global tags available in all templates */
+    globalTags?: GlobalTag[]
     /** Show a back navigation link in the header */
     showBackLink?: boolean
     /** URL for the back link */

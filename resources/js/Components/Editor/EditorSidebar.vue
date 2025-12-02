@@ -11,6 +11,8 @@ import { useDragDrop } from '../../composables/useDragDrop'
 import { getBlockIcon } from '../../registry'
 import { SECTION_TEMPLATES, LAYOUT_TEMPLATES, cloneBlocksWithNewIds } from '../../constants/templates'
 import { addBlocksAtEnd } from '../../stores/editorStore'
+import TagsPanel from './TagsPanel.vue'
+import TagEditor from './TagEditor.vue'
 import {
     ColumnInsertIcon,
     Image02Icon,
@@ -24,11 +26,40 @@ import {
     More03Icon,
 } from '@hugeicons/core-free-icons'
 
-interface Props {
-    availableBlocks: Record<string, BlockDefinition>
+interface GlobalTag {
+    key: string
+    label: string
+    description: string
+    example: string | null
+    global: boolean
 }
 
-defineProps<Props>()
+interface TemplateTag {
+    key: string
+    label: string
+    description: string
+    type: string
+    required: boolean
+    default: unknown
+    example: string | null
+}
+
+interface Props {
+    availableBlocks: Record<string, BlockDefinition>
+    globalTags?: GlobalTag[]
+    templateTags?: TemplateTag[]
+}
+
+interface Emits {
+    (e: 'update:templateTags', tags: TemplateTag[]): void
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    globalTags: () => [],
+    templateTags: () => [],
+})
+
+const emit = defineEmits<Emits>()
 
 const { createPaletteDragHandlers } = useDragDrop()
 
@@ -106,6 +137,45 @@ function getLayoutIcon(id: string): Component | null {
             return null
     }
 }
+
+const showTagEditor = ref(false)
+const editingTag = ref<TemplateTag | null>(null)
+
+function handleAddTag(): void {
+    editingTag.value = null
+    showTagEditor.value = true
+}
+
+function handleEditTag(tag: TemplateTag): void {
+    editingTag.value = tag
+    showTagEditor.value = true
+}
+
+function handleSaveTag(tag: TemplateTag): void {
+    const currentTags = [...props.templateTags]
+
+    if (editingTag.value) {
+        const index = currentTags.findIndex(t => t.key === editingTag.value?.key)
+        if (index !== -1) {
+            currentTags[index] = tag
+        }
+    } else {
+        currentTags.push(tag)
+    }
+
+    emit('update:templateTags', currentTags)
+    editingTag.value = null
+}
+
+function handleDeleteTag(key: string): void {
+    const currentTags = props.templateTags.filter(t => t.key !== key)
+    emit('update:templateTags', currentTags)
+    editingTag.value = null
+}
+
+function handleInsertTag(tagKey: string): void {
+    console.log('Insert tag:', tagKey)
+}
 </script>
 
 <template>
@@ -114,6 +184,7 @@ function getLayoutIcon(id: string): Component | null {
             <TabList>
                 <Tab tab-key="blocks">Blocks</Tab>
                 <Tab tab-key="templates">Templates</Tab>
+                <Tab tab-key="tags">Tags</Tab>
             </TabList>
 
             <TabPanel tab-key="blocks" class="flex-1 overflow-y-auto !p-0">
@@ -190,8 +261,25 @@ function getLayoutIcon(id: string): Component | null {
                     </div>
                 </div>
             </TabPanel>
+
+            <TabPanel tab-key="tags" class="flex-1 overflow-y-auto !p-0">
+                <TagsPanel
+                    :global-tags="globalTags"
+                    :template-tags="templateTags"
+                    @add-tag="handleAddTag"
+                    @edit-tag="handleEditTag"
+                    @insert-tag="handleInsertTag"
+                />
+            </TabPanel>
         </Tabs>
     </aside>
+
+    <TagEditor
+        v-model="showTagEditor"
+        :tag="editingTag"
+        @save="handleSaveTag"
+        @delete="handleDeleteTag"
+    />
 
     <Modal
         v-model="showReplaceModal"

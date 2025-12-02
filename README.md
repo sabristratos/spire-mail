@@ -10,7 +10,10 @@ A visual drag-and-drop email template editor for Laravel. Build beautiful, respo
 - Drag-and-drop email editor with real-time preview
 - 10+ content blocks (text, heading, image, button, divider, spacer, HTML, video, social icons, multi-column rows)
 - MJML-powered responsive rendering
-- Merge tag support for dynamic content
+- **Advanced tag system** with formatters, conditionals, and inline fallbacks
+- Global and template-specific tags with editor UI
+- 9 built-in formatters (date, currency, uppercase, lowercase, capitalize, truncate, count, number, default)
+- Conditional rendering with `{{#if}}`, `{{else}}`, `{{#unless}}`
 - Template management with bulk actions
 - Test email sending
 - Asset upload and management
@@ -99,25 +102,251 @@ $html = SpireMail::render('newsletter-template', [
 ]);
 ```
 
-## Merge Tags
+## Tag System
 
-Use merge tags in your templates for dynamic content:
+Spire Mail features a powerful tag system for dynamic content with formatters, conditionals, and inline fallbacks.
+
+### Basic Tags
+
+Use double-brace syntax with dot notation for nested data:
 
 ```
-Hello {{user_name}},
+Hello {{user.name}},
 
 Welcome to {{app_name}}!
+
+Your order #{{order.id}} was placed on {{order.date}}.
 ```
 
-### Global Merge Tags
+### Inline Fallbacks
 
-Define global merge tags in `config/spire-mail.php`:
+Provide default values for missing tags:
+
+```
+Hello {{user.nickname|default:Valued Customer}},
+
+Your discount: {{discount_code|default:No discount applied}}
+```
+
+### Formatters
+
+Apply formatters using pipe syntax:
+
+| Formatter | Syntax | Example | Output |
+|-----------|--------|---------|--------|
+| `date` | `{{tag\|date:format}}` | `{{order.date\|date:d/m/Y}}` | `25/12/2024` |
+| `currency` | `{{tag\|currency:code}}` | `{{total\|currency:EUR}}` | `€99.99` |
+| `uppercase` | `{{tag\|uppercase}}` | `{{name\|uppercase}}` | `JOHN DOE` |
+| `lowercase` | `{{tag\|lowercase}}` | `{{email\|lowercase}}` | `john@example.com` |
+| `capitalize` | `{{tag\|capitalize}}` | `{{name\|capitalize}}` | `John Doe` |
+| `truncate` | `{{tag\|truncate:length}}` | `{{desc\|truncate:50}}` | `First 50 chars...` |
+| `count` | `{{tag\|count}}` | `{{items\|count}}` | `5` |
+| `number` | `{{tag\|number:decimals}}` | `{{price\|number:2}}` | `99.00` |
+
+### Conditionals
+
+Show or hide content based on data:
+
+```html
+{{#if user.premium}}
+<p>Thank you for being a premium member!</p>
+{{/if}}
+
+{{#if order.discount}}
+<p>You saved {{order.discount|currency:USD}}!</p>
+{{else}}
+<p>No discount applied to this order.</p>
+{{/if}}
+
+{{#unless user.verified}}
+<p style="color: orange;">Please verify your email address.</p>
+{{/unless}}
+```
+
+### Global Tags
+
+Global tags are available in all templates. Define them in `config/spire-mail.php`:
 
 ```php
 'merge_tags' => [
     'app_name' => fn () => config('app.name'),
     'app_url' => fn () => config('app.url'),
     'current_year' => fn () => date('Y'),
+    'support_email' => 'support@example.com',
+],
+```
+
+### Registering Tags Programmatically
+
+Register global tags in a service provider:
+
+```php
+use SpireMail\Facades\SpireMail;
+
+public function boot(): void
+{
+    SpireMail::registerTags([
+        'company_name' => [
+            'value' => 'Acme Inc',
+            'label' => 'Company Name',
+            'description' => 'The company name',
+        ],
+        'support_email' => [
+            'value' => fn () => config('mail.from.address'),
+            'label' => 'Support Email',
+            'description' => 'Support contact email',
+            'example' => 'support@example.com',
+        ],
+    ]);
+
+    // Or register a single tag
+    SpireMail::registerTag('current_date', [
+        'value' => fn () => now()->format('F j, Y'),
+        'label' => 'Current Date',
+    ]);
+}
+```
+
+### Template-Specific Tags
+
+Define tags per template in the editor UI (Tags tab) or programmatically:
+
+```php
+use SpireMail\Models\MailTemplate;
+
+$template = MailTemplate::where('slug', 'order-confirmation')->first();
+
+$template->setTags([
+    [
+        'key' => 'user.name',
+        'label' => 'User Name',
+        'description' => 'The customer\'s full name',
+        'type' => 'string',
+        'required' => true,
+        'example' => 'John Doe',
+    ],
+    [
+        'key' => 'order.total',
+        'label' => 'Order Total',
+        'description' => 'Total order amount',
+        'type' => 'number',
+        'required' => true,
+        'example' => '99.99',
+    ],
+]);
+
+$template->save();
+```
+
+### Using Tags When Sending
+
+Pass data when sending emails:
+
+```php
+use SpireMail\Mail\SpireTemplateMailable;
+use Illuminate\Support\Facades\Mail;
+
+Mail::to($user->email)->send(
+    new SpireTemplateMailable('order-confirmation', [
+        'user' => [
+            'name' => $user->name,
+            'email' => $user->email,
+            'premium' => $user->is_premium,
+        ],
+        'order' => [
+            'id' => $order->id,
+            'date' => $order->created_at,
+            'total' => $order->total,
+            'discount' => $order->discount_amount,
+            'items' => $order->items->toArray(),
+        ],
+    ])
+);
+```
+
+### Template Example
+
+```html
+<h1>Hello {{user.name|default:Valued Customer}}!</h1>
+
+<p>Thank you for your order #{{order.id}}.</p>
+
+<p>Order placed on: {{order.date|date:F j, Y}}</p>
+<p>Total: {{order.total|currency:USD}}</p>
+<p>Items: {{order.items|count}}</p>
+
+{{#if order.discount}}
+<p style="color: green;">You saved {{order.discount|currency:USD}}!</p>
+{{/if}}
+
+{{#unless user.verified}}
+<p style="color: orange;">Please verify your email address.</p>
+{{/unless}}
+
+<p>Best regards,<br>{{app_name}}</p>
+<p>&copy; {{current_year}} All rights reserved.</p>
+```
+
+### Tag API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/admin/mail/tags` | GET | List all global tags |
+| `/admin/mail/tags/formatters` | GET | List available formatters |
+| `/admin/mail/templates/{id}/tags` | GET | Get template tags |
+| `/admin/mail/templates/{id}/tags` | PUT | Update template tags |
+
+### Tag Validation
+
+Spire Mail automatically validates that all required tags are provided when sending emails. If a template defines tags as required and the data is missing, an exception is thrown.
+
+```php
+use SpireMail\Exceptions\MissingRequiredTagsException;
+use SpireMail\Mail\SpireTemplateMailable;
+
+// This will throw MissingRequiredTagsException if required tags are missing
+try {
+    Mail::to($user->email)->send(
+        new SpireTemplateMailable('order-confirmation', [
+            'user' => ['name' => $user->name],
+            // Missing 'order' data - will throw if order.id is required
+        ])
+    );
+} catch (MissingRequiredTagsException $e) {
+    // Handle missing tags
+    Log::error('Missing tags', [
+        'template' => $e->templateSlug,
+        'missing' => $e->missingTags,
+    ]);
+}
+```
+
+#### Manual Validation
+
+Validate tags before queueing emails to catch errors early:
+
+```php
+use SpireMail\Facades\SpireMail;
+
+// Validate before queueing
+SpireMail::validateTags('order-confirmation', $data);
+Mail::to($user)->queue(new SpireTemplateMailable('order-confirmation', $data));
+```
+
+#### Disable Validation
+
+To disable tag validation globally:
+
+```env
+SPIRE_MAIL_VALIDATE_TAGS=false
+```
+
+Or in config:
+
+```php
+// config/spire-mail.php
+'validation' => [
+    'required_tags' => false,
 ],
 ```
 

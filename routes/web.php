@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use SpireMail\Http\Controllers\AssetController;
 use SpireMail\Http\Controllers\PreviewController;
+use SpireMail\Http\Controllers\TagController;
 use SpireMail\Http\Controllers\TemplateController;
 
 Route::get('/', [TemplateController::class, 'index'])->name('templates.index');
@@ -21,3 +22,8 @@ Route::post('/templates/{template}/send-test', [PreviewController::class, 'sendT
 
 Route::post('/assets/upload', [AssetController::class, 'store'])->name('assets.store');
 Route::delete('/assets/{filename}', [AssetController::class, 'destroy'])->name('assets.destroy');
+
+Route::get('/tags', [TagController::class, 'index'])->name('tags.index');
+Route::get('/tags/formatters', [TagController::class, 'formatters'])->name('tags.formatters');
+Route::get('/templates/{template}/tags', [TagController::class, 'show'])->name('templates.tags.show');
+Route::put('/templates/{template}/tags', [TagController::class, 'update'])->name('templates.tags.update');

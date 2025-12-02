@@ -24,12 +24,14 @@ class TemplateResource extends JsonResource
             'description' => $this->description,
             'content' => $this->content,
             'settings' => $this->settings,
+            'tags' => $this->getTags(),
             'preview_text' => $this->preview_text,
             'is_active' => $this->is_active,
             'last_sent_at' => $this->last_sent_at?->toIso8601String(),
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
             'block_count' => count($this->getBlocks()),
+            'tags_count' => count($this->getTags()),
         ];
     }
 }
