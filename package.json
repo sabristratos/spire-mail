@@ -1,17 +1,17 @@
 {
     "name": "@sabrenski/spire-mail",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "A visual email template builder for Laravel with drag-and-drop blocks, MJML rendering, and Vue 3 editor",
     "type": "module",
     "author": "Spire Mail Contributors",
     "license": "MIT",
-    "homepage": "https://github.com/sabrenski/spire-mail#readme",
+    "homepage": "https://github.com/sabristratos/spire-mail#readme",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/sabrenski/spire-mail.git"
+        "url": "git+https://github.com/sabristratos/spire-mail.git"
     },
     "bugs": {
-        "url": "https://github.com/sabrenski/spire-mail/issues"
+        "url": "https://github.com/sabristratos/spire-mail/issues"
     },
     "keywords": [
         "vue",
@@ -47,7 +47,7 @@
     },
     "peerDependencies": {
         "vue": "^3.0.0",
-        "@sabrenski/spire-ui-vue": "^0.1.0"
+        "@sabrenski/spire-ui-vue": "^0.2.0"
     },
     "dependencies": {
         "dompurify": "^3.2.0"
