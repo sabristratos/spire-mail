@@ -43,7 +43,7 @@ function fetchThumbnail(): void {
             <Input
                 :model-value="props.blockProps.videoUrl ?? ''"
                 placeholder="https://youtube.com/watch?v=..."
-                @update:model-value="update('videoUrl', $event)"
+                @update:model-value="update('videoUrl', String($event))"
             />
         </FormField>
 
@@ -53,7 +53,7 @@ function fetchThumbnail(): void {
                     class="flex-1"
                     :model-value="props.blockProps.thumbnailUrl ?? ''"
                     placeholder="Auto-generated or custom URL"
-                    @update:model-value="update('thumbnailUrl', $event)"
+                    @update:model-value="update('thumbnailUrl', String($event))"
                 />
                 <button
                     type="button"
@@ -69,7 +69,7 @@ function fetchThumbnail(): void {
             <Input
                 :model-value="props.blockProps.alt ?? 'Video'"
                 placeholder="Video description"
-                @update:model-value="update('alt', $event)"
+                @update:model-value="update('alt', String($event))"
             />
         </FormField>
 
@@ -77,7 +77,7 @@ function fetchThumbnail(): void {
             <Input
                 :model-value="props.blockProps.width ?? '100%'"
                 placeholder="100% or 600px"
-                @update:model-value="update('width', $event)"
+                @update:model-value="update('width', String($event))"
             />
         </FormField>
 

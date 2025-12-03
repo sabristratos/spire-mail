@@ -4,21 +4,21 @@ import type { SpacingValue } from '../types/blocks'
  * Composable for managing block property updates in Properties components.
  * Reduces boilerplate by providing standardized update functions.
  */
-export function useBlockProperties<T extends Record<string, unknown>>(
+export function useBlockProperties<T>(
     emit: (event: 'update', updates: Partial<T>) => void
 ) {
     /**
      * Update a single property on the block.
      */
     function update<K extends keyof T>(key: K, value: T[K]): void {
-        emit('update', { [key]: value } as Partial<T>)
+        emit('update', { [key]: value } as unknown as Partial<T>)
     }
 
     /**
      * Update the padding property.
      */
     function updatePadding(value: SpacingValue): void {
-        emit('update', { padding: value } as Partial<T>)
+        emit('update', { padding: value } as unknown as Partial<T>)
     }
 
     /**
@@ -45,7 +45,7 @@ export function useBlockProperties<T extends Record<string, unknown>>(
         defaultValue: number = 0
     ): void {
         const parsed = typeof value === 'string' ? parseFloat(value) : value
-        emit('update', { [key]: isNaN(parsed) ? defaultValue : parsed } as Partial<T>)
+        emit('update', { [key]: isNaN(parsed) ? defaultValue : parsed } as unknown as Partial<T>)
     }
 
     /**
@@ -57,7 +57,7 @@ export function useBlockProperties<T extends Record<string, unknown>>(
         defaultValue: number = 0
     ): void {
         const parsed = typeof value === 'string' ? parseInt(value, 10) : value
-        emit('update', { [key]: isNaN(parsed) ? defaultValue : parsed } as Partial<T>)
+        emit('update', { [key]: isNaN(parsed) ? defaultValue : parsed } as unknown as Partial<T>)
     }
 
     return {

@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { router } from '@inertiajs/vue3'
-import { EmailEditor, PreviewModal } from '../../index'
+import { router, usePage } from '@inertiajs/vue3'
+import { EmailEditor, PreviewModal } from '@sabrenski/spire-mail'
 import { Modal, Button, Input, Textarea, FormField, ToastContainer, addToast } from '@sabrenski/spire-ui-vue'
-import type { TemplateData, BlockDefinition, GlobalTag, TemplateTag } from '../../types/editor'
-import type { EmailBlock, EmailSettings } from '../../types/blocks'
+import type { TemplateData, BlockDefinition, GlobalTag, TemplateTag, EmailBlock, EmailSettings } from '@sabrenski/spire-mail'
 
 interface Props {
     template: { data: TemplateData } | null
@@ -14,14 +13,17 @@ interface Props {
 
 const props = defineProps<Props>()
 
+const page = usePage()
+const routePrefix = computed(() => (page.props.spireMailPrefix as string) || '/admin/mail')
+
 const template = computed(() => props.template?.data ?? null)
 
 const showMetadataModal = ref(!template.value)
 const showPreviewModal = ref(false)
 const isLoading = ref(false)
 
-const editorContent = ref<{ version: string; blocks: EmailBlock[] } | null>(null)
-const editorSettings = ref<EmailSettings | null>(null)
+const editorContent = ref<{ version: string; blocks: unknown[] } | null>(null)
+const editorSettings = ref<unknown>(null)
 const editorTags = ref<TemplateTag[]>(template.value?.tags ?? [])
 
 const metadata = ref({
@@ -31,7 +33,7 @@ const metadata = ref({
     preview_text: template.value?.preview_text ?? '',
 })
 
-function handleSave(content: { version: string; blocks: EmailBlock[] }, settings: EmailSettings, tags: TemplateTag[]): void {
+function handleSave(content: { version: string; blocks: unknown[] }, settings: unknown, tags: TemplateTag[]): void {
     editorContent.value = content
     editorSettings.value = settings
     editorTags.value = tags
@@ -41,7 +43,7 @@ function handleSave(content: { version: string; blocks: EmailBlock[] }, settings
         return
     }
 
-    saveTemplate(content, settings, tags)
+    saveTemplate(content as { version: string; blocks: EmailBlock[] }, settings as EmailSettings, tags)
 }
 
 function saveTemplate(content: { version: string; blocks: EmailBlock[] }, settings: EmailSettings, tags: TemplateTag[]): void {
@@ -49,11 +51,11 @@ function saveTemplate(content: { version: string; blocks: EmailBlock[] }, settin
 
     isLoading.value = true
 
-    router.put(`/admin/mail/templates/${template.value.id}`, {
+    router.put(`${routePrefix.value}/templates/${template.value.id}`, {
         ...metadata.value,
-        content,
-        settings,
-        tags,
+        content: content as any,
+        settings: settings as any,
+        tags: tags as any,
     }, {
         preserveScroll: true,
         preserveState: true,
@@ -63,8 +65,8 @@ function saveTemplate(content: { version: string; blocks: EmailBlock[] }, settin
                 description: 'Template saved successfully',
             })
         },
-        onError: (errors: Record<string, string[]>) => {
-            const messages = Object.values(errors).flat()
+        onError: (errors) => {
+            const messages = Object.values(errors as unknown as Record<string, string[]>).flat()
             addToast({
                 color: 'danger',
                 title: 'Validation Error',
@@ -81,19 +83,19 @@ function handleCreate(content: { version: string; blocks: EmailBlock[] }, settin
     isLoading.value = true
 
     router.post(
-        '/admin/mail/templates',
+        `${routePrefix.value}/templates`,
         {
             ...metadata.value,
-            content,
-            settings,
-            tags: editorTags.value,
+            content: content as any,
+            settings: settings as any,
+            tags: editorTags.value as any,
         },
         {
             onSuccess: () => {
                 showMetadataModal.value = false
             },
-            onError: (errors: Record<string, string[]>) => {
-                const messages = Object.values(errors).flat()
+            onError: (errors) => {
+                const messages = Object.values(errors as unknown as Record<string, string[]>).flat()
                 addToast({
                     color: 'danger',
                     title: 'Validation Error',
@@ -107,7 +109,7 @@ function handleCreate(content: { version: string; blocks: EmailBlock[] }, settin
     )
 }
 
-function handlePreview(content: { version: string; blocks: EmailBlock[] }, settings: EmailSettings): void {
+function handlePreview(content: { version: string; blocks: unknown[] }, settings: unknown): void {
     editorContent.value = content
     editorSettings.value = settings
     showPreviewModal.value = true
@@ -119,7 +121,7 @@ function submitMetadata(): void {
     }
 
     const content = editorContent.value ?? { version: '1.0', blocks: [] }
-    handleCreate(content, editorSettings.value)
+    handleCreate(content as { version: string; blocks: EmailBlock[] }, editorSettings.value as EmailSettings | null)
 }
 </script>
 
@@ -132,7 +134,7 @@ function submitMetadata(): void {
             :available-blocks="availableBlocks"
             :global-tags="globalTags"
             show-back-link
-            back-link-href="/admin/mail"
+            :back-link-href="routePrefix"
             @save="handleSave"
             @preview="handlePreview"
             @metadata-click="showMetadataModal = true"
@@ -183,8 +185,8 @@ function submitMetadata(): void {
         <PreviewModal
             v-model="showPreviewModal"
             :template-id="template?.id ?? null"
-            :content="editorContent?.blocks ?? []"
-            :settings="editorSettings ?? { fontFamily: 'Arial, sans-serif', backgroundColor: '#f4f4f5', contentBackgroundColor: '#ffffff', contentWidth: 600 }"
+            :content="(editorContent?.blocks ?? []) as any"
+            :settings="(editorSettings ?? { fontFamily: 'Arial, sans-serif', backgroundColor: '#f4f4f5', contentBackgroundColor: '#ffffff', contentWidth: 600 }) as any"
         />
     </div>
 </template>

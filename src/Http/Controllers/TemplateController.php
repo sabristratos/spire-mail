@@ -31,14 +31,14 @@ class TemplateController extends Controller
             ->orderBy('updated_at', 'desc')
             ->paginate(12);
 
-        return Inertia::render('spire-mail::Templates/Index', [
+        return Inertia::render('SpireMail/Templates/Index', [
             'templates' => TemplateResource::collection($templates),
         ]);
     }
 
     public function create(): Response
     {
-        return Inertia::render('spire-mail::Templates/Create');
+        return Inertia::render('SpireMail/Templates/Create');
     }
 
     public function store(StoreTemplateRequest $request): RedirectResponse
@@ -73,7 +73,7 @@ class TemplateController extends Controller
 
     public function edit(MailTemplate $template, BlockRegistry $blockRegistry): Response
     {
-        return Inertia::render('spire-mail::Templates/Edit', [
+        return Inertia::render('SpireMail/Templates/Edit', [
             'template' => new TemplateResource($template),
             'availableBlocks' => $blockRegistry->getAvailableBlocks(),
             'globalTags' => $this->manager->getGlobalTagsForEditor(),

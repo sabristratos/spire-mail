@@ -57,7 +57,7 @@ trait UsesSpireTemplate
         }
 
         return app(SpireMailManager::class)
-            ->processMergeTags($this->spireTemplate->subject, $this->spireData);
+            ->processTags($this->spireTemplate->subject, $this->spireData);
     }
 
     public function getSpireTemplate(): ?MailTemplate

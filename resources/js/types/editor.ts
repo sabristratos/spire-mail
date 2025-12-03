@@ -81,9 +81,9 @@ export interface TemplateTag {
     /** Whether tag is required */
     required: boolean
     /** Default value if not provided */
-    default: unknown
+    default: string | number | undefined
     /** Example value for preview */
-    example: string | null
+    example: string | number | undefined
 }
 
 /**

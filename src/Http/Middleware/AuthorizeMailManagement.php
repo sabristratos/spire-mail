@@ -22,10 +22,6 @@ class AuthorizeMailManagement
 
         $gateName = config('spire-mail.authorization.gate', 'manage-mail-templates');
 
-        if (! Gate::has($gateName)) {
-            Gate::define($gateName, fn ($user) => true);
-        }
-
         if (! Gate::allows($gateName)) {
             abort(403, __('spire-mail::messages.unauthorized'));
         }

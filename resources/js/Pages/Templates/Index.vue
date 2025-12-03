@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { Link, router, usePage } from '@inertiajs/vue3'
+import DefaultLayout from '../../Components/Layouts/DefaultLayout.vue'
+
+defineOptions({
+    layout: DefaultLayout,
+})
 import {
     Table,
     Button,
@@ -62,6 +67,7 @@ interface Props {
 const props = defineProps<Props>()
 const page = usePage()
 const toast = useToast()
+const routePrefix = computed(() => (page.props.spireMailPrefix as string) || '/admin/mail')
 
 const selectedKeys = ref<number[]>([])
 const togglingStatus = ref<Set<number>>(new Set())
@@ -131,8 +137,8 @@ const columns = [
     { key: 'actions', label: '', width: '60px', align: 'center' as const },
 ]
 
-watch(() => page.props.flash, (flash: Record<string, unknown>) => {
-    const toastData = flash?.toast as { color?: string; title?: string; description?: string } | undefined
+watch(() => page.props.flash, (flash) => {
+    const toastData = (flash as Record<string, unknown>)?.toast as { color?: string; title?: string; description?: string } | undefined
     if (toastData) {
         toast.show({
             color: toastData.color as 'success' | 'danger' | 'warning' | 'default',
@@ -152,7 +158,7 @@ function formatDate(dateString: string): string {
 
 function toggleStatus(template: Template): void {
     togglingStatus.value.add(template.id)
-    router.patch(`/admin/mail/templates/${template.id}/toggle-status`, {}, {
+    router.patch(`${routePrefix.value}/templates/${template.id}/toggle-status`, {}, {
         preserveScroll: true,
         onFinish: () => togglingStatus.value.delete(template.id),
     })
@@ -168,7 +174,7 @@ function handleDelete(): void {
 
     isDeleting.value = true
 
-    router.delete(`/admin/mail/templates/${templateToDelete.value.id}`, {
+    router.delete(`${routePrefix.value}/templates/${templateToDelete.value.id}`, {
         onFinish: () => {
             isDeleting.value = false
             deleteModal.value = false
@@ -179,7 +185,7 @@ function handleDelete(): void {
 
 function handleDuplicate(template: Template): void {
     toast.loading('Duplicating template...')
-    router.post(`/admin/mail/templates/${template.id}/duplicate`, {}, {
+    router.post(`${routePrefix.value}/templates/${template.id}/duplicate`, {}, {
         onError: () => {
             toast.dismissAll()
             toast.danger('Failed to duplicate template')
@@ -189,7 +195,7 @@ function handleDuplicate(template: Template): void {
 
 function handleBulkDelete(): void {
     isDeletingBulk.value = true
-    router.delete('/admin/mail/templates/bulk', {
+    router.delete(`${routePrefix.value}/templates/bulk`, {
         data: { ids: selectedKeys.value },
         preserveScroll: true,
         onSuccess: () => {
@@ -215,7 +221,7 @@ function clearFilters(): void {
 function handleRowAction(key: string, template: Template): void {
     switch (key) {
         case 'edit':
-            router.visit(`/admin/mail/templates/${template.id}`)
+            router.visit(`${routePrefix.value}/templates/${template.id}`)
             break
         case 'duplicate':
             handleDuplicate(template)
@@ -228,7 +234,7 @@ function handleRowAction(key: string, template: Template): void {
 </script>
 
 <template>
-    <div class="min-h-screen bg-canvas">
+    <div>
         <ToastContainer placement="bottom-right" />
 
         <header class="border-b border-border bg-surface px-6 py-4">
@@ -237,7 +243,7 @@ function handleRowAction(key: string, template: Template): void {
                     <Heading :level="1" size="xl">Email Templates</Heading>
                     <Text variant="subtle">Manage your email templates</Text>
                 </div>
-                <Link href="/admin/mail/templates/create">
+                <Link :href="`${routePrefix}/templates/create`">
                     <Button :icon="Add01Icon">
                         New Template
                     </Button>
@@ -307,7 +313,7 @@ function handleRowAction(key: string, template: Template): void {
                 class="w-full py-12"
             >
                 <template #actions>
-                    <Link href="/admin/mail/templates/create">
+                    <Link :href="`${routePrefix}/templates/create`">
                         <Button>Create Template</Button>
                     </Link>
                 </template>
@@ -327,7 +333,7 @@ function handleRowAction(key: string, template: Template): void {
 
             <Table
                 v-else
-                :data="filteredTemplates"
+                :data="(filteredTemplates as any)"
                 :columns="columns"
                 row-key="id"
                 selection-mode="multiple"

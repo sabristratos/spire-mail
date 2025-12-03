@@ -62,7 +62,7 @@ function handleColumnPaddingUpdate(columnIndex: number, padding: { top?: number;
 
 <template>
     <div class="space-y-4 p-4">
-        <Tabs size="sm" :full-width=true default-value="layout">
+        <Tabs size="sm" :full-width="true" default-value="layout">
             <TabList >
                 <Tab tab-key="layout">Layout</Tab>
                 <Tab tab-key="row-style">Row Style</Tab>

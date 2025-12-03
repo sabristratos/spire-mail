@@ -16,9 +16,9 @@ class InstallCommand extends Command
      * @var string
      */
     protected $signature = 'spire-mail:install
-        {--force : Overwrite existing configuration}
-        {--no-migrate : Skip running migrations}
-        {--publish-config : Publish configuration file}';
+        {--force : Overwrite existing files}
+        {--publish-config : Publish configuration file}
+        {--no-migrate : Skip running migrations}';
 
     /**
      * @var string
@@ -33,14 +33,14 @@ class InstallCommand extends Command
             return self::FAILURE;
         }
 
+        $this->publishPages();
+        $this->publishComponents();
+
         if ($this->option('publish-config')) {
             $this->publishConfig();
         }
 
-        if (! $this->option('no-migrate')) {
-            $this->runMigrations();
-        }
-
+        $this->runMigrations();
         $this->registerDefaultGate();
         $this->displaySuccessMessage();
 
@@ -67,6 +67,46 @@ class InstallCommand extends Command
         return true;
     }
 
+    protected function publishPages(): void
+    {
+        $pagesPath = resource_path('js/Pages/SpireMail');
+
+        if (File::isDirectory($pagesPath) && ! $this->option('force')) {
+            $this->components->info('Vue pages already exist. Use --force to overwrite.');
+
+            return;
+        }
+
+        $this->components->task('Publishing Vue pages', function () {
+            Artisan::call('vendor:publish', [
+                '--tag' => 'spire-mail-pages',
+                '--force' => $this->option('force'),
+            ]);
+
+            return true;
+        });
+    }
+
+    protected function publishComponents(): void
+    {
+        $componentsPath = resource_path('js/Components/SpireMail');
+
+        if (File::isDirectory($componentsPath) && ! $this->option('force')) {
+            $this->components->info('Vue components already exist. Use --force to overwrite.');
+
+            return;
+        }
+
+        $this->components->task('Publishing Vue components', function () {
+            Artisan::call('vendor:publish', [
+                '--tag' => 'spire-mail-components',
+                '--force' => $this->option('force'),
+            ]);
+
+            return true;
+        });
+    }
+
     protected function publishConfig(): void
     {
         $configPath = config_path('spire-mail.php');
@@ -91,6 +131,12 @@ class InstallCommand extends Command
 
     protected function runMigrations(): void
     {
+        if ($this->option('no-migrate')) {
+            $this->components->info('Skipping migrations (--no-migrate flag).');
+
+            return;
+        }
+
         if (Schema::hasTable('mail_templates')) {
             $this->components->info('Mail templates table already exists. Skipping migration.');
 
@@ -139,8 +185,9 @@ class InstallCommand extends Command
         $this->newLine();
         $this->components->info('Next Steps:');
         $this->components->bulletList([
+            'Run: <comment>npm install @sabrenski/spire-mail</comment>',
+            'Then: <comment>npm run build</comment> (or npm run dev)',
             'Customize the authorization gate in your AuthServiceProvider',
-            'Configure storage disk in config/spire-mail.php if needed',
         ]);
 
         $this->newLine();

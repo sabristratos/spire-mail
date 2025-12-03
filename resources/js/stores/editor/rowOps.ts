@@ -43,7 +43,7 @@ export function addBlockToColumn(
         id: generateId(),
         type: blockType,
         props: getDefaultProps(blockType),
-    } as ContentBlock
+    } as unknown as ContentBlock
 
     if (typeof index === 'number' && index >= 0) {
         column.blocks.splice(index, 0, newBlock)

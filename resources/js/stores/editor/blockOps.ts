@@ -28,7 +28,7 @@ export function addBlock(type: BlockType, index?: number): EmailBlock {
         id: generateId(),
         type,
         props: getDefaultProps(type),
-    } as EmailBlock
+    } as unknown as EmailBlock
 
     if (typeof index === 'number' && index >= 0) {
         state.value.blocks.splice(index, 0, newBlock)

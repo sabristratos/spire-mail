@@ -17,8 +17,8 @@ interface TemplateTag {
     description: string
     type: string
     required: boolean
-    default: unknown
-    example: string | null
+    default: string | number | undefined
+    example: string | number | undefined
 }
 
 interface Props {

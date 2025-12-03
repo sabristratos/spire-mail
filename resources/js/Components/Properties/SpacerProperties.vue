@@ -25,7 +25,7 @@ const { update } = useBlockProperties<SpacerBlockProps>(emit)
                 :min="10"
                 :max="200"
                 :step="5"
-                @update:model-value="update('height', $event)"
+                @update:model-value="update('height', Number($event))"
             />
             <span class="text-xs text-foreground-muted">{{ props.blockProps.height ?? 40 }}px</span>
         </FormField>

@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 import { Modal, Button, Icon, Spinner, Input, Tabs, TabList, Tab } from '@sabrenski/spire-ui-vue'
 import {
     ComputerIcon,
     SmartPhone01Icon,
     RefreshIcon,
     MailSend01Icon,
+    AlertCircleIcon,
+    FloppyDiskIcon,
 } from '@hugeicons/core-free-icons'
 import type { EmailBlock, EmailSettings } from '../../types/blocks'
 
@@ -49,6 +52,9 @@ const viewportWidths: Record<Viewport, number> = {
 
 const iframeWidth = computed(() => viewportWidths[viewport.value])
 
+const page = usePage()
+const routePrefix = computed(() => (page.props.spireMailPrefix as string) || '/admin/mail')
+
 const csrfToken = computed(() => {
     if (props.csrfToken) return props.csrfToken
     return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? ''
@@ -73,7 +79,7 @@ async function fetchPreview(): Promise<void> {
     error.value = null
 
     try {
-        const response = await fetch(`/admin/mail/templates/${props.templateId}/preview`, {
+        const response = await fetch(`${routePrefix.value}/templates/${props.templateId}/preview`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -107,7 +113,7 @@ async function sendTestEmail(): Promise<void> {
     testEmailError.value = null
 
     try {
-        const response = await fetch(`/admin/mail/templates/${props.templateId}/send-test`, {
+        const response = await fetch(`${routePrefix.value}/templates/${props.templateId}/send-test`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -194,7 +200,7 @@ function handleClose(): void {
             </div>
 
             <div v-else-if="error" class="flex h-[500px] flex-col items-center justify-center gap-4 text-center">
-                <Icon name="alert-circle" size="xl" class="text-danger" />
+                <Icon :name="AlertCircleIcon" size="xl" class="text-danger" />
                 <p class="text-foreground-muted">{{ error }}</p>
                 <Button variant="secondary" size="sm" @click="fetchPreview">
                     Try Again
@@ -202,7 +208,7 @@ function handleClose(): void {
             </div>
 
             <div v-else-if="!templateId" class="flex h-[500px] flex-col items-center justify-center gap-2 text-center">
-                <Icon name="save-01" size="xl" class="text-foreground-muted" />
+                <Icon :name="FloppyDiskIcon" size="xl" class="text-foreground-muted" />
                 <p class="text-foreground-muted">Save your template first to preview</p>
             </div>
 

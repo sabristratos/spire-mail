@@ -84,7 +84,7 @@ function updateLink(index: number, field: keyof SocialLink, value: string | bool
                     :model-value="link.url"
                     :placeholder="platformPlaceholders[link.platform]"
                     size="sm"
-                    @update:model-value="updateLink(index, 'url', $event)"
+                    @update:model-value="updateLink(index, 'url', String($event))"
                 />
             </div>
         </div>
@@ -126,7 +126,7 @@ function updateLink(index: number, field: keyof SocialLink, value: string | bool
                 :min="4"
                 :max="32"
                 :step="2"
-                @update:model-value="update('gap', $event)"
+                @update:model-value="update('gap', Number($event))"
             />
             <span class="text-xs text-foreground-muted">{{ props.blockProps.gap ?? 12 }}px</span>
         </FormField>

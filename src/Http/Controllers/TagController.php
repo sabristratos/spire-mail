@@ -5,6 +5,7 @@ namespace SpireMail\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Log;
 use SpireMail\Http\Controllers\Concerns\LogsToChannel;
 use SpireMail\Models\MailTemplate;
 use SpireMail\Services\SpireMailManager;
@@ -59,7 +60,7 @@ class TagController extends Controller
         $template->setTags($validated['tags']);
         $template->save();
 
-        $this->logInfo('Template tags updated', [
+        Log::channel($this->logChannel())->info('Template tags updated', [
             'template_id' => $template->id,
             'template_slug' => $template->slug,
             'tags_count' => count($validated['tags']),

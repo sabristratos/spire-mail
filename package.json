@@ -47,7 +47,9 @@
     },
     "peerDependencies": {
         "vue": "^3.0.0",
-        "@sabrenski/spire-ui-vue": "^0.2.0"
+        "@sabrenski/spire-ui-vue": "^0.2.0",
+        "@hugeicons/core-free-icons": "^2.0.0",
+        "@inertiajs/vue3": "^2.0.0"
     },
     "dependencies": {
         "dompurify": "^3.2.0"

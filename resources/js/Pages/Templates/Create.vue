@@ -1,8 +1,16 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { router, Link } from '@inertiajs/vue3'
+import { ref, computed } from 'vue'
+import { router, Link, usePage } from '@inertiajs/vue3'
 import { Button, Input, Textarea, FormField, Card, ToastContainer, Icon } from '@sabrenski/spire-ui-vue'
 import { ArrowLeft02Icon } from '@hugeicons/core-free-icons'
+import DefaultLayout from '../../Components/Layouts/DefaultLayout.vue'
+
+defineOptions({
+    layout: DefaultLayout,
+})
+
+const page = usePage()
+const routePrefix = computed(() => (page.props.spireMailPrefix as string) || '/admin/mail')
 
 const isLoading = ref(false)
 
@@ -32,7 +40,7 @@ function handleSubmit(): void {
 
     isLoading.value = true
 
-    router.post('/admin/mail/templates', {
+    router.post(`${routePrefix.value}/templates`, {
         name: form.value.name,
         subject: form.value.subject,
         description: form.value.description || null,
@@ -56,16 +64,16 @@ function handleSubmit(): void {
 </script>
 
 <template>
-    <div class="min-h-screen bg-canvas">
+    <div>
         <ToastContainer placement="bottom-right" />
 
         <header class="border-b border-border bg-surface px-6 py-4">
             <div class="flex items-center gap-4">
                 <Link
-                    href="/admin/mail"
+                    :href="routePrefix"
                     class="flex items-center gap-1 text-sm text-foreground-muted hover:text-foreground"
                 >
-                    <Icon :icon="ArrowLeft02Icon" size="sm" />
+                    <Icon :name="ArrowLeft02Icon" size="sm" />
                     <span>Back to Templates</span>
                 </Link>
 
@@ -128,7 +136,7 @@ function handleSubmit(): void {
                     </FormField>
 
                     <div class="flex items-center justify-end gap-3 border-t border-border pt-6">
-                        <Link href="/admin/mail">
+                        <Link :href="routePrefix">
                             <Button type="button" variant="secondary">Cancel</Button>
                         </Link>
                         <Button type="submit" :loading="isLoading">

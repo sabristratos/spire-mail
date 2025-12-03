@@ -40,7 +40,7 @@ class SpireTemplateMailable extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         $subject = app(SpireMailManager::class)
-            ->processMergeTags($this->template->subject, $this->mergeData);
+            ->processTags($this->template->subject, $this->mergeData);
 
         return new Envelope(subject: $subject);
     }

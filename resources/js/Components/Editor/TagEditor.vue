@@ -8,8 +8,8 @@ interface TemplateTag {
     description: string
     type: string
     required: boolean
-    default: unknown
-    example: string | null
+    default: string | number | undefined
+    example: string | number | undefined
 }
 
 interface Props {
@@ -39,8 +39,8 @@ const form = ref<TemplateTag>({
     description: '',
     type: 'string',
     required: false,
-    default: null,
-    example: null,
+    default: undefined,
+    example: undefined,
 })
 
 const typeOptions = [
@@ -72,8 +72,8 @@ function resetForm(): void {
         description: '',
         type: 'string',
         required: false,
-        default: null,
-        example: null,
+        default: undefined,
+        example: undefined,
     }
 }
 
@@ -85,7 +85,7 @@ function handleSave(): void {
         key: form.value.key.trim(),
         label: form.value.label.trim() || humanizeKey(form.value.key),
         description: form.value.description.trim(),
-        example: form.value.example?.trim() || null,
+        example: form.value.example !== undefined ? String(form.value.example).trim() || undefined : undefined,
     })
 
     isOpen.value = false

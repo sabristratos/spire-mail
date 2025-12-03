@@ -25,7 +25,7 @@ const { update, updatePadding, updateInt } = useBlockProperties<HeadingBlockProp
             <Textarea
                 :model-value="props.blockProps.content"
                 placeholder="Enter heading text..."
-                rows="2"
+                :rows="2"
                 @update:model-value="update('content', $event)"
             />
         </FormField>

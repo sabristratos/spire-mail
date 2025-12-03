@@ -193,7 +193,7 @@ function handleRowDragLeave(e: DragEvent): void {
                         <component
                             :is="getBlockComponent(block.type)"
                             v-if="getBlockComponent(block.type)"
-                            :block-props="block.props"
+                            :block-props="(block.props as any)"
                         />
                     </NestedBlockWrapper>
 

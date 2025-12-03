@@ -5,6 +5,7 @@ namespace SpireMail;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Inertia\Inertia;
 use SpireMail\Console\Commands\InstallCommand;
 use SpireMail\Contracts\TemplateRendererInterface;
 use SpireMail\Http\Middleware\AuthorizeMailManagement;
@@ -45,6 +46,14 @@ class SpireMailServiceProvider extends ServiceProvider
         $this->registerPublishables();
         $this->registerCommands();
         $this->registerDefaultGate();
+        $this->registerInertiaSharedData();
+    }
+
+    protected function registerInertiaSharedData(): void
+    {
+        if (class_exists(Inertia::class)) {
+            Inertia::share('spireMailPrefix', fn () => '/'.ltrim(config('spire-mail.route_prefix', 'admin/mail'), '/'));
+        }
     }
 
     protected function registerCommands(): void
@@ -139,8 +148,12 @@ class SpireMailServiceProvider extends ServiceProvider
             ], 'spire-mail-views');
 
             $this->publishes([
-                __DIR__.'/../resources/js' => resource_path('js/vendor/spire-mail'),
-            ], 'spire-mail-assets');
+                __DIR__.'/../resources/js/Pages/Templates' => resource_path('js/Pages/SpireMail/Templates'),
+            ], 'spire-mail-pages');
+
+            $this->publishes([
+                __DIR__.'/../resources/js/Components' => resource_path('js/Components/SpireMail'),
+            ], 'spire-mail-components');
 
             $this->publishes([
                 __DIR__.'/../lang' => lang_path('vendor/spire-mail'),

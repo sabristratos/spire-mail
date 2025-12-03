@@ -4,6 +4,7 @@
 .env
 .env.*
 .phpunit.result.cache
+.phpunit.cache/
 .php-cs-fixer.cache
 phpunit.xml
 phpstan.neon

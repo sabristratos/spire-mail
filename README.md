@@ -10,39 +10,185 @@ A visual drag-and-drop email template editor for Laravel. Build beautiful, respo
 - Drag-and-drop email editor with real-time preview
 - 10+ content blocks (text, heading, image, button, divider, spacer, HTML, video, social icons, multi-column rows)
 - MJML-powered responsive rendering
-- **Advanced tag system** with formatters, conditionals, and inline fallbacks
+- Advanced tag system with formatters, conditionals, and inline fallbacks
 - Global and template-specific tags with editor UI
 - 9 built-in formatters (date, currency, uppercase, lowercase, capitalize, truncate, count, number, default)
 - Conditional rendering with `{{#if}}`, `{{else}}`, `{{#unless}}`
 - Template management with bulk actions
 - Test email sending
 - Asset upload and management
-- Zero-configuration setup
+- Configurable route prefix and authorization
+- Vue 3 components for custom integrations
 
 ## Requirements
 
+### Backend
 - PHP 8.2+
 - Laravel 11 or 12
+
+### Frontend
+- Node.js 18+
+- Vue 3
+- Inertia.js
 
 ## Quick Start
 
 ```bash
+# Install the Composer package
 composer require spire/mail
 
+# Run the install command
+php artisan spire-mail:install
+
+# Install the npm package
+npm install @sabrenski/spire-mail
+
+# Build your assets
+npm run build
+```
+
+Access the editor at `/admin/mail` (or your configured route prefix).
+
+## Installation
+
+### Backend (Composer)
+
+```bash
+composer require spire/mail
+```
+
+### Frontend (NPM)
+
+The Vue editor components are distributed as a separate npm package:
+
+```bash
+npm install @sabrenski/spire-mail
+```
+
+**Peer Dependencies:** Your project must have these packages installed:
+
+| Package | Version | Description |
+|---------|---------|-------------|
+| `vue` | ^3.0.0 | Vue.js framework |
+| `@sabrenski/spire-ui-vue` | ^0.2.0 | Spire UI component library |
+| `@hugeicons/core-free-icons` | ^2.0.0 | Icon library |
+| `@inertiajs/vue3` | ^2.0.0 | Inertia.js Vue adapter |
+
+### Install Command
+
+Run the install command to set up the package:
+
+```bash
 php artisan spire-mail:install
 ```
 
-That's it! Access the editor at `/admin/mail`.
-
-## Installation Options
-
-The install command accepts the following options:
+**Options:**
 
 | Option | Description |
 |--------|-------------|
 | `--publish-config` | Publish configuration file for customization |
 | `--no-migrate` | Skip running migrations |
-| `--force` | Overwrite existing configuration |
+| `--force` | Overwrite existing files |
+
+## Configuration
+
+### Route Prefix
+
+By default, routes are registered at `/admin/mail`. Customize this with an environment variable:
+
+```env
+SPIRE_MAIL_PREFIX=email-admin
+```
+
+Routes will then be available at `/email-admin`.
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SPIRE_MAIL_PREFIX` | `admin/mail` | Route prefix for the admin interface |
+| `SPIRE_MAIL_DISK` | `public` | Storage disk for uploaded assets |
+| `SPIRE_MAIL_VALIDATE_TAGS` | `true` | Enable/disable required tag validation |
+| `SPIRE_MAIL_LOGGING` | `true` | Enable/disable logging |
+| `SPIRE_MAIL_LOG_CHANNEL` | `spire-mail` | Log channel name |
+| `SPIRE_MAIL_LOG_LEVEL` | `debug` | Log level |
+
+### Configuration File
+
+Publish the configuration file for full customization:
+
+```bash
+php artisan spire-mail:install --publish-config
+```
+
+Or manually:
+
+```bash
+php artisan vendor:publish --tag=spire-mail-config
+```
+
+**Key Configuration Options:**
+
+```php
+return [
+    // Route prefix for the admin interface
+    'route_prefix' => env('SPIRE_MAIL_PREFIX', 'admin/mail'),
+
+    // Middleware applied to all routes
+    'middleware' => ['web', 'auth'],
+
+    // Authorization settings
+    'authorization' => [
+        'enabled' => true,
+        'gate' => 'manage-mail-templates',
+    ],
+
+    // Template defaults
+    'templates' => [
+        'content_width' => 600,
+        'font_family' => 'Arial, sans-serif',
+        'background_color' => '#f5f5f5',
+        'content_background_color' => '#ffffff',
+    ],
+
+    // Asset storage
+    'storage' => [
+        'disk' => env('SPIRE_MAIL_DISK', 'public'),
+        'path' => 'mail-assets',
+    ],
+
+    // Global merge tags
+    'merge_tags' => [
+        'app_name' => fn () => config('app.name'),
+        'app_url' => fn () => config('app.url'),
+        'current_year' => fn () => date('Y'),
+    ],
+];
+```
+
+### Authorization
+
+By default, Spire Mail allows all authenticated users to manage templates. To restrict access, define a gate in your `AppServiceProvider` or `AuthServiceProvider`:
+
+```php
+use Illuminate\Support\Facades\Gate;
+
+public function boot(): void
+{
+    Gate::define('manage-mail-templates', function ($user) {
+        return $user->hasRole('admin');
+    });
+}
+```
+
+To disable authorization entirely:
+
+```php
+// config/spire-mail.php
+'authorization' => [
+    'enabled' => false,
+],
+```
 
 ## Sending Emails
 
@@ -238,73 +384,14 @@ $template->setTags([
 $template->save();
 ```
 
-### Using Tags When Sending
-
-Pass data when sending emails:
-
-```php
-use SpireMail\Mail\SpireTemplateMailable;
-use Illuminate\Support\Facades\Mail;
-
-Mail::to($user->email)->send(
-    new SpireTemplateMailable('order-confirmation', [
-        'user' => [
-            'name' => $user->name,
-            'email' => $user->email,
-            'premium' => $user->is_premium,
-        ],
-        'order' => [
-            'id' => $order->id,
-            'date' => $order->created_at,
-            'total' => $order->total,
-            'discount' => $order->discount_amount,
-            'items' => $order->items->toArray(),
-        ],
-    ])
-);
-```
-
-### Template Example
-
-```html
-<h1>Hello {{user.name|default:Valued Customer}}!</h1>
-
-<p>Thank you for your order #{{order.id}}.</p>
-
-<p>Order placed on: {{order.date|date:F j, Y}}</p>
-<p>Total: {{order.total|currency:USD}}</p>
-<p>Items: {{order.items|count}}</p>
-
-{{#if order.discount}}
-<p style="color: green;">You saved {{order.discount|currency:USD}}!</p>
-{{/if}}
-
-{{#unless user.verified}}
-<p style="color: orange;">Please verify your email address.</p>
-{{/unless}}
-
-<p>Best regards,<br>{{app_name}}</p>
-<p>&copy; {{current_year}} All rights reserved.</p>
-```
-
-### Tag API Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/admin/mail/tags` | GET | List all global tags |
-| `/admin/mail/tags/formatters` | GET | List available formatters |
-| `/admin/mail/templates/{id}/tags` | GET | Get template tags |
-| `/admin/mail/templates/{id}/tags` | PUT | Update template tags |
-
 ### Tag Validation
 
-Spire Mail automatically validates that all required tags are provided when sending emails. If a template defines tags as required and the data is missing, an exception is thrown.
+Spire Mail automatically validates that all required tags are provided when sending emails:
 
 ```php
 use SpireMail\Exceptions\MissingRequiredTagsException;
 use SpireMail\Mail\SpireTemplateMailable;
 
-// This will throw MissingRequiredTagsException if required tags are missing
 try {
     Mail::to($user->email)->send(
         new SpireTemplateMailable('order-confirmation', [
@@ -313,7 +400,6 @@ try {
         ])
     );
 } catch (MissingRequiredTagsException $e) {
-    // Handle missing tags
     Log::error('Missing tags', [
         'template' => $e->templateSlug,
         'missing' => $e->missingTags,
@@ -321,33 +407,201 @@ try {
 }
 ```
 
-#### Manual Validation
-
-Validate tags before queueing emails to catch errors early:
+**Validate before queueing:**
 
 ```php
 use SpireMail\Facades\SpireMail;
 
-// Validate before queueing
 SpireMail::validateTags('order-confirmation', $data);
 Mail::to($user)->queue(new SpireTemplateMailable('order-confirmation', $data));
 ```
 
-#### Disable Validation
-
-To disable tag validation globally:
+**Disable validation:**
 
 ```env
 SPIRE_MAIL_VALIDATE_TAGS=false
 ```
 
-Or in config:
+## Vue Editor Components
 
-```php
-// config/spire-mail.php
-'validation' => [
-    'required_tags' => false,
-],
+The npm package exports Vue components for custom integrations.
+
+### Available Exports
+
+```typescript
+// Main editor components
+import {
+    EmailEditor,
+    EditorSidebar,
+    EditorCanvas,
+    EditorProperties,
+    PreviewModal,
+} from '@sabrenski/spire-mail'
+
+// Canvas components
+import { CanvasBlock, CanvasDropZone } from '@sabrenski/spire-mail'
+
+// Block components
+import { TextBlock, ImageBlock, ButtonBlock } from '@sabrenski/spire-mail'
+
+// Property panels
+import { TextProperties, ImageProperties, ButtonProperties } from '@sabrenski/spire-mail'
+
+// Page components (for custom routing)
+import { TemplatesIndex, TemplatesEdit, TemplatesCreate } from '@sabrenski/spire-mail'
+
+// Composables and stores
+import { useEditorStore } from '@sabrenski/spire-mail'
+
+// Types
+import type {
+    EmailBlock,
+    EmailSettings,
+    TemplateData,
+    BlockDefinition,
+    GlobalTag,
+    TemplateTag,
+} from '@sabrenski/spire-mail'
+
+// Layout
+import { DefaultLayout } from '@sabrenski/spire-mail'
+```
+
+### Custom Layouts
+
+The Index and Create pages use Inertia's persistent layout pattern. After publishing the pages, you can customize the layout to use your own admin layout.
+
+> **Note:** The Edit page (email editor) maintains its own full-screen layout and does not support custom layouts.
+
+**Step 1: Publish the pages**
+
+```bash
+php artisan vendor:publish --tag=spire-mail-pages
+```
+
+**Step 2: Edit the layout in published files**
+
+Update the Index and Create pages to use your layout:
+
+```vue
+// resources/js/Pages/SpireMail/Templates/Index.vue
+<script setup lang="ts">
+import AdminLayout from '@/Layouts/AdminLayout.vue'
+
+defineOptions({
+    layout: AdminLayout,
+})
+
+// ... rest of the component
+</script>
+```
+
+```vue
+// resources/js/Pages/SpireMail/Templates/Create.vue
+<script setup lang="ts">
+import AdminLayout from '@/Layouts/AdminLayout.vue'
+
+defineOptions({
+    layout: AdminLayout,
+})
+
+// ... rest of the component
+</script>
+```
+
+**Your layout component** should render the default slot:
+
+```vue
+// resources/js/Layouts/AdminLayout.vue
+<script setup lang="ts">
+import { Sidebar, Navbar } from '@/Components'
+</script>
+
+<template>
+    <div class="flex min-h-screen">
+        <Sidebar />
+        <div class="flex-1">
+            <Navbar />
+            <main>
+                <slot />
+            </main>
+        </div>
+    </div>
+</template>
+```
+
+### Importing CSS
+
+Include the package CSS in your application:
+
+```typescript
+// In your main.ts or app.ts
+import '@sabrenski/spire-mail/style.css'
+```
+
+### Using EmailEditor
+
+The main editor component for building email templates:
+
+```vue
+<script setup lang="ts">
+import { EmailEditor, PreviewModal } from '@sabrenski/spire-mail'
+import type { TemplateData, BlockDefinition, GlobalTag } from '@sabrenski/spire-mail'
+
+interface Props {
+    template: { data: TemplateData } | null
+    availableBlocks: Record<string, BlockDefinition>
+    globalTags: GlobalTag[]
+}
+
+const props = defineProps<Props>()
+
+function handleSave(content, settings, tags) {
+    // Save template via Inertia or API
+}
+
+function handlePreview(content, settings) {
+    // Open preview modal
+}
+</script>
+
+<template>
+    <EmailEditor
+        :template="template?.data"
+        :available-blocks="availableBlocks"
+        :global-tags="globalTags"
+        show-back-link
+        back-link-href="/admin/mail"
+        @save="handleSave"
+        @preview="handlePreview"
+    />
+</template>
+```
+
+### Using PreviewModal
+
+Preview and send test emails:
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { PreviewModal } from '@sabrenski/spire-mail'
+
+const showPreview = ref(false)
+const templateId = ref(1)
+const content = ref([])
+const settings = ref({})
+</script>
+
+<template>
+    <PreviewModal
+        v-model="showPreview"
+        :template-id="templateId"
+        :content="content"
+        :settings="settings"
+        @test-sent="handleTestSent"
+    />
+</template>
 ```
 
 ## Available Blocks
@@ -364,93 +618,6 @@ Or in config:
 | Video | Video embeds with thumbnail fallback |
 | Social Icons | Social media icon links |
 | Row | Multi-column layouts (1-3 columns) |
-
-## Configuration
-
-Publish the configuration file:
-
-```bash
-php artisan spire-mail:install --publish-config
-```
-
-Or manually:
-
-```bash
-php artisan vendor:publish --tag=spire-mail-config
-```
-
-### Key Configuration Options
-
-```php
-return [
-    // Route prefix for the admin interface
-    'route_prefix' => env('SPIRE_MAIL_PREFIX', 'admin/mail'),
-
-    // Middleware applied to all routes
-    'middleware' => ['web', 'auth'],
-
-    // Authorization settings
-    'authorization' => [
-        'enabled' => true,
-        'gate' => 'manage-mail-templates',
-    ],
-
-    // Asset storage
-    'storage' => [
-        'disk' => env('SPIRE_MAIL_DISK', 'public'),
-        'path' => 'mail-assets',
-    ],
-];
-```
-
-## Authorization
-
-By default, Spire Mail allows all authenticated users to manage templates. To restrict access, define a gate in your `AppServiceProvider` or `AuthServiceProvider`:
-
-```php
-use Illuminate\Support\Facades\Gate;
-
-public function boot(): void
-{
-    Gate::define('manage-mail-templates', function ($user) {
-        return $user->hasRole('admin');
-    });
-}
-```
-
-To disable authorization entirely:
-
-```php
-// config/spire-mail.php
-'authorization' => [
-    'enabled' => false,
-],
-```
-
-## Working with Templates
-
-### Query Templates
-
-```php
-use SpireMail\Models\MailTemplate;
-
-// Get all active templates
-$templates = MailTemplate::active()->get();
-
-// Find by slug
-$template = MailTemplate::where('slug', 'welcome-email')->first();
-```
-
-### Create Templates Programmatically
-
-```php
-$template = MailTemplate::create([
-    'name' => 'Welcome Email',
-    'subject' => 'Welcome to {{app_name}}!',
-    'content' => ['version' => '1.0', 'blocks' => []],
-    'is_active' => true,
-]);
-```
 
 ## Custom Block Renderers
 
@@ -483,14 +650,103 @@ Register in config:
 ],
 ```
 
+## API Endpoints
+
+All endpoints use the configured route prefix (default: `/admin/mail`).
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/` | GET | Template list page |
+| `/templates` | POST | Create template |
+| `/templates/{id}` | GET | Edit template page |
+| `/templates/{id}` | PUT | Update template |
+| `/templates/{id}` | DELETE | Delete template |
+| `/templates/{id}/toggle-status` | PATCH | Toggle active status |
+| `/templates/{id}/duplicate` | POST | Duplicate template |
+| `/templates/{id}/preview` | POST | Generate preview HTML |
+| `/templates/{id}/send-test` | POST | Send test email |
+| `/templates/{id}/tags` | GET | Get template tags |
+| `/templates/{id}/tags` | PUT | Update template tags |
+| `/tags` | GET | List global tags |
+| `/tags/formatters` | GET | List available formatters |
+| `/assets/upload` | POST | Upload asset |
+| `/assets/{filename}` | DELETE | Delete asset |
+
+## Working with Templates
+
+### Query Templates
+
+```php
+use SpireMail\Models\MailTemplate;
+
+// Get all active templates
+$templates = MailTemplate::active()->get();
+
+// Find by slug
+$template = MailTemplate::where('slug', 'welcome-email')->first();
+```
+
+### Create Templates Programmatically
+
+```php
+$template = MailTemplate::create([
+    'name' => 'Welcome Email',
+    'subject' => 'Welcome to {{app_name}}!',
+    'content' => ['version' => '1.0', 'blocks' => []],
+    'is_active' => true,
+]);
+```
+
 ## Publishing Assets
 
 ```bash
-php artisan vendor:publish --tag=spire-mail-config
-php artisan vendor:publish --tag=spire-mail-migrations
-php artisan vendor:publish --tag=spire-mail-views
-php artisan vendor:publish --tag=spire-mail-lang
+php artisan vendor:publish --tag=spire-mail-config      # Configuration
+php artisan vendor:publish --tag=spire-mail-migrations  # Migrations
+php artisan vendor:publish --tag=spire-mail-views       # Blade views
+php artisan vendor:publish --tag=spire-mail-lang        # Language files
+php artisan vendor:publish --tag=spire-mail-pages       # Vue pages
+php artisan vendor:publish --tag=spire-mail-components  # Vue components
 ```
+
+## Troubleshooting
+
+### Blank page at /admin/mail
+
+Ensure you've run the install command and built your assets:
+
+```bash
+php artisan spire-mail:install
+npm run build
+```
+
+### 403 Forbidden
+
+Define the authorization gate or disable authorization:
+
+```php
+// Option 1: Define the gate
+Gate::define('manage-mail-templates', fn($user) => $user->isAdmin());
+
+// Option 2: Disable authorization
+// config/spire-mail.php
+'authorization' => ['enabled' => false],
+```
+
+### Missing peer dependencies
+
+Install all required npm packages:
+
+```bash
+npm install vue @sabrenski/spire-ui-vue @hugeicons/core-free-icons @inertiajs/vue3
+```
+
+### Asset upload fails
+
+Ensure your storage is properly configured:
+
+1. Run `php artisan storage:link`
+2. Check that `storage/app/public` is writable
+3. Verify `SPIRE_MAIL_DISK` is correctly configured
 
 ## License
 

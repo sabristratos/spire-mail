@@ -23,11 +23,13 @@ export default defineConfig({
         },
         cssMinify: 'lightningcss',
         rollupOptions: {
-            external: ['vue', '@sabrenski/spire-ui-vue'],
+            external: ['vue', '@sabrenski/spire-ui-vue', '@hugeicons/core-free-icons', '@inertiajs/vue3'],
             output: {
                 globals: {
                     vue: 'Vue',
                     '@sabrenski/spire-ui-vue': 'SpireUI',
+                    '@hugeicons/core-free-icons': 'HugeiconsCoreFree',
+                    '@inertiajs/vue3': 'InertiaVue3',
                 },
                 assetFileNames: 'spire-mail.[ext]',
             },

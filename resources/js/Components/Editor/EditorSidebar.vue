@@ -40,8 +40,8 @@ interface TemplateTag {
     description: string
     type: string
     required: boolean
-    default: unknown
-    example: string | null
+    default: string | number | undefined
+    example: string | number | undefined
 }
 
 interface Props {
@@ -67,8 +67,8 @@ const activeTab = ref('blocks')
 const showReplaceModal = ref(false)
 const pendingTemplate = ref<EmailTemplate | null>(null)
 
-function getIconComponent(type: string): Component | null {
-    return getBlockIcon(type as BlockType)
+function getIconComponent(type: string): Component {
+    return getBlockIcon(type as BlockType) ?? ColumnInsertIcon
 }
 
 const sectionTemplates = computed(() => SECTION_TEMPLATES)
@@ -106,7 +106,7 @@ function addSectionTemplate(template: EmailTemplate): void {
     addBlocksAtEnd(blocks, false)
 }
 
-function getSectionIcon(sectionType?: string): Component | null {
+function getSectionIcon(sectionType?: string): Component {
     switch (sectionType) {
         case 'header':
             return More03Icon
@@ -121,11 +121,11 @@ function getSectionIcon(sectionType?: string): Component | null {
         case 'signature':
             return SignatureIcon
         default:
-            return null
+            return ColumnInsertIcon
     }
 }
 
-function getLayoutIcon(id: string): Component | null {
+function getLayoutIcon(id: string): Component {
     switch (id) {
         case 'layout-newsletter':
             return NewsIcon
@@ -134,7 +134,7 @@ function getLayoutIcon(id: string): Component | null {
         case 'layout-welcome':
             return WavingHand01Icon
         default:
-            return null
+            return ColumnInsertIcon
     }
 }
 
@@ -173,8 +173,8 @@ function handleDeleteTag(key: string): void {
     editingTag.value = null
 }
 
-function handleInsertTag(tagKey: string): void {
-    console.log('Insert tag:', tagKey)
+function handleInsertTag(_tagKey: string): void {
+    // Tag insertion handled by TagsPanel copy-to-clipboard functionality
 }
 </script>
 

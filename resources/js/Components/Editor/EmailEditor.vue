@@ -267,7 +267,7 @@ function isInputFocused(): boolean {
                 <FormField label="Font Family" description="Default font for the email">
                     <Select
                         :model-value="editorState.settings.fontFamily"
-                        @update:model-value="(v: string) => updateSettings({ fontFamily: v })"
+                        @update:model-value="(v) => updateSettings({ fontFamily: String(v) })"
                     >
                         <SelectOption
                             v-for="font in emailFonts"
@@ -303,7 +303,7 @@ function isInputFocused(): boolean {
                         :model-value="editorState.settings.contentWidth"
                         :min="400"
                         :max="800"
-                        @update:model-value="(v: number) => updateSettings({ contentWidth: Number(v) })"
+                        @update:model-value="(v) => updateSettings({ contentWidth: Number(v) })"
                     />
                 </FormField>
             </div>
