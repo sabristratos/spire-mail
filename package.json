@@ -1,6 +1,6 @@
 {
     "name": "@sabrenski/spire-mail",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "description": "A visual email template builder for Laravel with drag-and-drop blocks, MJML rendering, and Vue 3 editor",
     "type": "module",
     "author": "Spire Mail Contributors",

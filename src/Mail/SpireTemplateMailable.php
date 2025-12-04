@@ -55,7 +55,7 @@ class SpireTemplateMailable extends Mailable implements ShouldQueue
     /**
      * @param  array<string, mixed>  $data
      */
-    public function with(array $data): static
+    public function withMergeData(array $data): static
     {
         $this->mergeData = array_merge($this->mergeData, $data);
 
